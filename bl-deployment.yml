@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: cicd-test
+  name: bl-cicd
+  labels:
+    app: bl-cicd
+spec:
+  replicas: 1
+  template:
+    metadata:
+      namespace: cicd-test
+      labels:
+        app: bl-cicd
+    spec:
+      containers:
+        - name: bl-cicd
+          image: 014669633018.dkr.ecr.eu-west-2.amazonaws.com/bl-cicd
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8090
+              protocol: TCP
+      imagePullSecrets:
+        - name: aws-ecr
+
+
