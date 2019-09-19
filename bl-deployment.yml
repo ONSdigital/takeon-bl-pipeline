@@ -1,21 +1,21 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  namespace: cicd-test
-  name: bl-cicd
+  namespace: take-on
+  name: business-layer
   labels:
-    app: bl-cicd
+    app: business-layer
 spec:
   replicas: 1
   template:
     metadata:
-      namespace: cicd-test
+      namespace: take-on
       labels:
-        app: bl-cicd
+        app: business-layer
     spec:
       containers:
-        - name: bl-cicd
-          image: 014669633018.dkr.ecr.eu-west-2.amazonaws.com/bl-cicd
+        - name: business-layer
+          image: 014669633018.dkr.ecr.eu-west-2.amazonaws.com/take-on-bl
           imagePullPolicy: Always
           ports:
             - name: http
@@ -23,5 +23,3 @@ spec:
               protocol: TCP
       imagePullSecrets:
         - name: aws-ecr
-
-
