@@ -15,24 +15,24 @@ resources:
     type: docker-image
     source:
       repository: {{ecr_repository}}
-      aws_access_key_id: {{aws_access_key_id}}
-      aws_secret_access_key: {{aws_secret_access_key}}
+      aws_access_key_id: ((concourse-svc-user.api-key))
+      aws_secret_access_key: ((concourse-svc-user.api-secret))
   - name: kubeconfig-file
     type: s3
     source:
       bucket: cicd-kubeconfig
       versioned_file: kube_config.yaml
-      access_key_id: {{aws_access_key_id}}
-      secret_access_key: {{aws_secret_access_key}}
+      access_key_id: ((concourse-svc-user.api-key))
+      secret_access_key: ((concourse-svc-user.api-secret))
       region_name: {{aws_region}}
   - name: k8s
     type: kubernetes
     source:
       use_aws_iam_authenticator: true
       aws_eks_cluster_name: {{cluster_name}}
-      aws_access_key_id: {{aws_access_key_id}}
-      aws_secret_access_key: {{aws_secret_access_key}}
-      namespace: take-on
+      aws_access_key_id: ((concourse-svc-user.api-key))
+      aws_secret_access_key: ((concourse-svc-user.api-secret))
+      namespace: {{namespace}}
 
 jobs:
   - name: "Docker-Build"
@@ -69,7 +69,7 @@ jobs:
                   set -e
                   cd git-repo
                   mvn clean test jacoco:report 
-                  awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, " instructions covered"; print 100*covered/instructions, "% covered" }' target/site/jacoco/jacoco.csv        
+                  awk -F"," '{ instructions += $4 + $5; covered += $5 } END { print covered, "/", instructions, " instructions covered"; print 100*covered/instructions, "% covered" }' target/site/jacoco/jacoco.csv
   - name: "Deploy-Application"
     public: false
     plan:
@@ -84,6 +84,6 @@ jobs:
         - get: kubeconfig-file
       - put: k8s
         params:
-          kubectl: delete pods -l app=business-layer -n take-on
+          kubectl: delete pods -l app=business-layer -n {{namespace}}
           wait_until_ready_selector: app=business-layer
           kubeconfig_file: kubeconfig-file/kube_config.yaml
